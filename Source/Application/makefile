@@ -16,6 +16,7 @@ SRCS = *.cpp \
 	Core/*.c
 
 all:
+	clang-format -i -style=file  $(SRCS)
 	clear
 	mkdir -p $(BUILD_DIR)
 	$(CXX) $(CXXFLAGS) $(SRCS) -o $(TARGET)

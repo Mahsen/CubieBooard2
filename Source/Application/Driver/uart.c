@@ -1,4 +1,5 @@
-/************************************************** Description *******************************************************/
+/************************************************** Description
+ * *******************************************************/
 /*
     File : uart.c
     Programmer : Mohammad Lotfi
@@ -11,138 +12,147 @@
     Email : info@mahsen.ir
     Last Update : 2025/1/16
 */
-/************************************************** Warnings **********************************************************/
+/************************************************** Warnings
+ * **********************************************************/
 /*
     Only for learning
 
-	UART_Init();
-	UART_Channel_Config(UART_CHANNEL_2, B115200, CS8, PARENB, CSTOPB);
-	while(true) {
-		U16 Length = 0;
-		U8* Data = UART_Channel_Receive(UART_CHANNEL_2, &Length);
-		if (Data) {
-			Data[Length] = 0;
-			UART_Channel_Send(UART_CHANNEL_2, Data, Length);
-			Print((char*)Data);
-			UART_Channel_Clear(UART_CHANNEL_2);
-		}
-	}
+        UART_Init();
+        UART_Channel_Config(UART_CHANNEL_2, B115200, CS8, PARENB, CSTOPB);
+        while(true) {
+                U16 Length = 0;
+                U8* Data = UART_Channel_Receive(UART_CHANNEL_2, &Length);
+                if (Data) {
+                        Data[Length] = 0;
+                        UART_Channel_Send(UART_CHANNEL_2, Data, Length);
+                        Print((char*)Data);
+                        UART_Channel_Clear(UART_CHANNEL_2);
+                }
+        }
 */
-/************************************************** Wizards ***********************************************************/
+/************************************************** Wizards
+ * ***********************************************************/
 /*
     Nothing
 */
-/************************************************** Includes **********************************************************/
+/************************************************** Includes
+ * **********************************************************/
 #include "uart.h"
 #include "../Module/Print.hpp"
-/************************************************** Defineds **********************************************************/
+/************************************************** Defineds
+ * **********************************************************/
 /*
     Nothing
 */
-/************************************************** Names *************************************************************/
+/************************************************** Names
+ * *************************************************************/
 /*
     Nothing
 */
-/************************************************** Variables *********************************************************/
+/************************************************** Variables
+ * *********************************************************/
 volatile struct struct_Ring UART[UART_CHANNEL_MAX];
-char* UART_Channel_tty[] = {(char*)"/dev/ttyS1", (char*)"/dev/ttyS2"};
+char *UART_Channel_tty[] = {(char *)"/dev/ttyS1", (char *)"/dev/ttyS2"};
 void UART_Task(void);
-/************************************************** Opjects ***********************************************************/
+/************************************************** Opjects
+ * ***********************************************************/
 /*
     Nothing
 */
-/************************************************** Functions *********************************************************/
+/************************************************** Functions
+ * *********************************************************/
 void UART_Init(void) {
-	std::thread Task(UART_Task);
-	Task.detach(); 
+  std::thread Task(UART_Task);
+  Task.detach();
 }
 /*--------------------------------------------------------------------------------------------------------------------*/
-void UART_Channel_Config(U8 Channel, U32 BaudRate, U32 WordLength, U32 Parity, U32 StopBits) {
-	if(Channel < UART_CHANNEL_MAX) {
-		UART_Channel_Clear(Channel);
-		UART[Channel].File = open(UART_Channel_tty[Channel], O_RDWR | O_NOCTTY);
-		if (UART[Channel].File == -1) {
-			return;
-		}
-		struct termios options;
-		tcgetattr(UART[Channel].File, &options);          // Get current UART attributes
-		cfsetispeed(&options, BaudRate);             // Set input baud rate
-		cfsetospeed(&options, BaudRate);             // Set output baud rate
-		options.c_cflag &= ~Parity;                  // parity
-		options.c_cflag &= ~StopBits;                // stop bit
-		options.c_cflag &= ~CSIZE;                   // Clear size bits
-		options.c_cflag |= WordLength;               // data bits
-		options.c_cflag |= (CLOCAL | CREAD);         // Enable receiver, ignore modem lines
-		// Set UART to raw mode
-		options.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG); // Disable canonical mode and echo
-		options.c_iflag &= ~(IXON | IXOFF | IXANY);         // Disable software flow control
-		options.c_oflag &= ~OPOST;                          // Disable output processing
-		tcsetattr(UART[Channel].File, TCSANOW, &options); // Apply the settings
-	}
+void UART_Channel_Config(U8 Channel, U32 BaudRate, U32 WordLength, U32 Parity,
+                         U32 StopBits) {
+  if (Channel < UART_CHANNEL_MAX) {
+    UART_Channel_Clear(Channel);
+    UART[Channel].File = open(UART_Channel_tty[Channel], O_RDWR | O_NOCTTY);
+    if (UART[Channel].File == -1) {
+      return;
+    }
+    struct termios options;
+    tcgetattr(UART[Channel].File, &options); // Get current UART attributes
+    cfsetispeed(&options, BaudRate);         // Set input baud rate
+    cfsetospeed(&options, BaudRate);         // Set output baud rate
+    options.c_cflag &= ~Parity;              // parity
+    options.c_cflag &= ~StopBits;            // stop bit
+    options.c_cflag &= ~CSIZE;               // Clear size bits
+    options.c_cflag |= WordLength;           // data bits
+    options.c_cflag |= (CLOCAL | CREAD); // Enable receiver, ignore modem lines
+    // Set UART to raw mode
+    options.c_lflag &=
+        ~(ICANON | ECHO | ECHOE | ISIG); // Disable canonical mode and echo
+    options.c_iflag &= ~(IXON | IXOFF | IXANY); // Disable software flow control
+    options.c_oflag &= ~OPOST;                  // Disable output processing
+    tcsetattr(UART[Channel].File, TCSANOW, &options); // Apply the settings
+  }
 }
 /*--------------------------------------------------------------------------------------------------------------------*/
 void UART_Channel_DeConfig(U8 Channel) {
-	if(Channel < UART_CHANNEL_MAX) {
-		if(UART[Channel].File) {
-			close(UART[Channel].File);
-		}
-	}
+  if (Channel < UART_CHANNEL_MAX) {
+    if (UART[Channel].File) {
+      close(UART[Channel].File);
+    }
+  }
 }
 /*--------------------------------------------------------------------------------------------------------------------*/
 void UART_Channel_Clear(U8 Channel) {
-    if(Channel < UART_CHANNEL_MAX) {      
-		memset((void*)UART[Channel].Receive.Data, 0, UART_BUFFER_MAX);              
-		UART[Channel].Receive.Length = 0;
-	}
+  if (Channel < UART_CHANNEL_MAX) {
+    memset((void *)UART[Channel].Receive.Data, 0, UART_BUFFER_MAX);
+    UART[Channel].Receive.Length = 0;
+  }
 }
 /*--------------------------------------------------------------------------------------------------------------------*/
-U8* UART_Channel_Receive(U8 Channel, U16* Length) {
-    if(Channel < UART_CHANNEL_MAX) {    
-		if(UART[Channel].File) {                  
-            if(UART[Channel].Receive.Length) {                
-                do {
-                    *Length = UART[Channel].Receive.Length;
-                    usleep(10000);
-                } while(*Length != UART[Channel].Receive.Length);
-                return (U8*)UART[Channel].Receive.Data;
-            }
-        }
-	}
-	*Length = 0;
-	return NULL;
-}
-/*--------------------------------------------------------------------------------------------------------------------*/
-void UART_Channel_Send(U8 Channel, U8* Data, U16 Length) {    
-    if(Channel < UART_CHANNEL_MAX) {    
-		if(UART[Channel].File) {                            
-            write(UART[Channel].File, Data, Length); 
-		}
+U8 *UART_Channel_Receive(U8 Channel, U16 *Length) {
+  if (Channel < UART_CHANNEL_MAX) {
+    if (UART[Channel].File) {
+      if (UART[Channel].Receive.Length) {
+        do {
+          *Length = UART[Channel].Receive.Length;
+          usleep(10000);
+        } while (*Length != UART[Channel].Receive.Length);
+        return (U8 *)UART[Channel].Receive.Data;
+      }
     }
+  }
+  *Length = 0;
+  return NULL;
 }
-/************************************************** Tasks *************************************************************/
+/*--------------------------------------------------------------------------------------------------------------------*/
+void UART_Channel_Send(U8 Channel, U8 *Data, U16 Length) {
+  if (Channel < UART_CHANNEL_MAX) {
+    if (UART[Channel].File) {
+      write(UART[Channel].File, Data, Length);
+    }
+  }
+}
+/************************************************** Tasks
+ * *************************************************************/
 void UART_Task(void) {
-	char Buffer[UART_BUFFER_MAX];  
-    int Length;
-	while(true) {
-		for(int Index=0; Index<UART_CHANNEL_MAX; Index++) {
-			if(UART[Index].File) {
-				Length = read(UART[Index].File, Buffer, (UART_BUFFER_MAX - 1));
-				if(Length && ((UART[Index].Receive.Length + Length) < (UART_BUFFER_MAX - 1))) {
-					memcpy((void*)&UART[Index].Receive.Data[UART[Index].Receive.Length], Buffer, Length);
-					UART[Index].Receive.Length += Length;
-				}
-			}
-		}
-		usleep(1000);
-	}
+  char Buffer[UART_BUFFER_MAX];
+  int Length;
+  while (true) {
+    for (int Index = 0; Index < UART_CHANNEL_MAX; Index++) {
+      if (UART[Index].File) {
+        Length = read(UART[Index].File, Buffer, (UART_BUFFER_MAX - 1));
+        if (Length &&
+            ((UART[Index].Receive.Length + Length) < (UART_BUFFER_MAX - 1))) {
+          memcpy((void *)&UART[Index].Receive.Data[UART[Index].Receive.Length],
+                 Buffer, Length);
+          UART[Index].Receive.Length += Length;
+        }
+      }
+    }
+    usleep(1000);
+  }
 }
-/************************************************** Vectors ***********************************************************/
+/************************************************** Vectors
+ * ***********************************************************/
 /*
     Nothing
 */
 /**********************************************************************************************************************/
-
-
-
-
-
