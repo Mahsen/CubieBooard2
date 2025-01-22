@@ -43,8 +43,8 @@ int main() {
 
 	Print((char*)"Application: Start");
 
-	//std::thread Task_Blink(MAIN_Blink);
-	//Task_Blink.join(); 
+	std::thread Task_Blink(MAIN_Blink);
+	Task_Blink.join(); 
 
 	//return 0;
 }
@@ -52,8 +52,8 @@ int main() {
 void MAIN_Blink(void) {
 	while(true) {
 		static bool led = false;
-		char str[32];
-		sprintf(str, "gpio write PE2 %d", led);
+		char str[64];
+		sprintf(str, "echo %d > ../../sys/class/leds/cubieboard2:blue:usr/brightness", led);
 		system(str);
 		led ^= true;
 		usleep(100000);
