@@ -12,6 +12,7 @@
 #include <unistd.h>
 #include <cstddef>
 #include <mutex>
+#include <stdarg.h>
 //----------------------------------------------------------
 typedef signed char                          S8;
 typedef unsigned char                        U8;

@@ -1,26 +1,44 @@
-# Export STAGING_DIR
+# Export STAGING_DIR 
 STAGING_DIR = ../OpenWRT/staging_dir
 export STAGING_DIR
+# Library  
+LIBRARY_DIR = -L$(STAGING_DIR)/target-arm_cortex-a7+neon-vfpv4_musl_eabi/usr/lib
+LIBRARY = -lcjson
 # Compiler
-CXX = ../OpenWRT/staging_dir/toolchain-arm_cortex-a7+neon-vfpv4_gcc-13.3.0_musl_eabi/bin/arm-openwrt-linux-g++
+CXX = $(STAGING_DIR)/toolchain-arm_cortex-a7+neon-vfpv4_gcc-13.3.0_musl_eabi/bin/arm-openwrt-linux-g++
 # Compiler flags
 CXXFLAGS = -Wall -g -pthread
 # Build dir
 BUILD_DIR = Build
 # Target executable
 TARGET = $(BUILD_DIR)/Application
+# Target executable Web
+TARGET_WEB = $(BUILD_DIR)/Web
 # Source files
 SRCS = *.cpp \
 	Module/*.cpp \
 	Driver/*.c \
 	Core/*.c
+# Source files Web
+SRCS_WEB = Web/*.cpp \
+	Module/*.cpp \
+	Driver/*.c \
+	Core/*.c
+# Source files www
+SRCS_WWW = Web/www/*
 
 all:
 	clang-format -i -style=file  $(SRCS)
 	clear
 	mkdir -p $(BUILD_DIR)
 	$(CXX) $(CXXFLAGS) $(SRCS) -o $(TARGET)
+	chmod +x $(TARGET)
+	$(CXX) $(CXXFLAGS) $(SRCS_WEB) -o $(TARGET_WEB) $(LIBRARY_DIR) $(LIBRARY)
+	chmod +x $(TARGET_WEB)
 	cp $(TARGET) ../OpenWRT/files/root
+	cp $(SRCS_WWW) ../OpenWRT/files/www
+	cp $(TARGET_WEB) ../OpenWRT/files/www/cgi-bin/
 	
 clean:
 	del $(TARGET)
+	del $(TARGET_WEB)
