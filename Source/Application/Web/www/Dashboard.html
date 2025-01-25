@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script> <!-- Use Tailwind CSS -->
+    <style>
+        .glass {
+            backdrop-filter: blur(10px);
+            background-color: rgba(0, 0, 0, 0.6);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .draggable {
+            position: absolute;
+            width: 600px;
+            height: 450px;
+            top: 100px;
+            left: 100px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            overflow: hidden;
+            resize: both;
+            overflow: auto;
+            z-index: 0;
+        }
+
+        .title-bar {
+            height: 50px;
+            background: linear-gradient(135deg, #3b82f6, #1e3a8a);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            color: white;
+            font-weight: bold;
+            cursor: grab;
+        }
+
+        .title-bar:hover {
+            background: linear-gradient(135deg, #2563eb, #1e40af);
+        }
+
+        .title-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .title-button {
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 4px 10px;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .title-button:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .content {
+            padding: 20px;
+            overflow: auto;
+            height: calc(100% - 50px);
+        }
+
+        .resize-handle {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            width: 15px;
+            height: 15px;
+            background-color: rgba(255, 255, 255, 0.4);
+            cursor: se-resize;
+        }
+
+        .input-field {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .input-field:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        .tab-button {
+            padding: 10px 20px;
+            background-color: #3b82f6;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            border: none;
+            margin-right: 10px;
+        }
+
+        .tab-button:hover {
+            background-color: #2563eb;
+        }
+
+        .tab-button.active {
+            background-color: #1e40af;
+        }
+
+        .form-section {
+            margin-top: 20px;
+        }
+
+        .form-section h3 {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-r from-gray-800 via-gray-900 to-black h-screen">
+
+    <!-- Sidebar Menu -->
+    <nav class="glass w-64 h-full fixed flex flex-col p-6">
+        <h2 class="text-2xl font-semibold text-white mb-8">Router Menu</h2>
+        <ul class="space-y-4">
+            <li>
+                <button onclick="showPage('ip-config')" class="block w-full text-left text-white text-lg hover:text-blue-400 transition">IP Configuration</button>
+            </li>
+            <li>
+                <button onclick="showPage('network-interfaces')" class="block w-full text-left text-white text-lg hover:text-blue-400 transition">Network Interfaces</button>
+            </li>
+            <li>
+                <button onclick="showPage('router-status')" class="block w-full text-left text-white text-lg hover:text-blue-400 transition">Router Status</button>
+            </li>
+        </ul>
+        <footer class="mt-auto text-white text-sm">
+            <p>Powered by <a href="https://mahsen.ir" class="text-blue-500 hover:underline" target="_blank">mahsen.ir</a></p>
+        </footer>
+    </nav>
+
+    <!-- Main Content -->
+    <div id="content-area" class="ml-64 p-8 relative h-full">
+        <!-- Draggable Windows -->
+        <div id="ip-config" class="glass draggable hidden">
+            <div class="title-bar" onmousedown="startDrag(event, 'ip-config')" onclick="bringToFront('ip-config')">
+                <span>IP Configuration</span>
+                <div class="title-buttons">
+                    <span class="title-button" onclick="closePage('ip-config')">&times;</span>
+                </div>
+            </div>
+            <div class="content">
+                <div class="tabs">
+                    <button class="tab-button active" onclick="switchTab('ipv4')">IPv4 Settings</button>
+                    <button class="tab-button" onclick="switchTab('dns')">DNS Settings</button>
+                </div>
+
+                <!-- IPv4 Settings Tab -->
+                <div id="ipv4" class="form-section">
+                    <h3>IPv4 Configuration</h3>
+                    <label for="ip-address" class="text-white">IP Address:</label>
+                    <input type="text" id="ip-address" class="input-field" value="192.168.1.1" />
+                    
+                    <label for="subnet-mask" class="text-white mt-4">Subnet Mask:</label>
+                    <input type="text" id="subnet-mask" class="input-field" value="255.255.255.0" />
+                    
+                    <label for="gateway" class="text-white mt-4">Gateway:</label>
+                    <input type="text" id="gateway" class="input-field" value="192.168.1.254" />
+                </div>
+
+                <!-- DNS Settings Tab -->
+                <div id="dns" class="form-section hidden">
+                    <h3>DNS Configuration</h3>
+                    <label for="primary-dns" class="text-white">Primary DNS:</label>
+                    <input type="text" id="primary-dns" class="input-field" value="8.8.8.8" />
+
+                    <label for="secondary-dns" class="text-white mt-4">Secondary DNS:</label>
+                    <input type="text" id="secondary-dns" class="input-field" value="8.8.4.4" />
+                </div>
+
+                <button onclick="saveIPConfig()" class="mt-6 py-2 px-6 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Save Changes</button>
+            </div>
+            <div class="resize-handle" onmousedown="startResize(event, 'ip-config')"></div>
+        </div>
+
+        <div id="network-interfaces" class="glass draggable hidden">
+            <div class="title-bar" onmousedown="startDrag(event, 'network-interfaces')" onclick="bringToFront('network-interfaces')">
+                <span>Network Interfaces</span>
+                <div class="title-buttons">
+                    <span class="title-button" onclick="closePage('network-interfaces')">&times;</span>
+                </div>
+            </div>
+            <div class="content">
+                <ul class="text-white opacity-75">
+                    <li><span class="font-semibold">eth0</span> - Active</li>
+                    <li><span class="font-semibold">wlan0</span> - Inactive</li>
+                </ul>
+            </div>
+            <div class="resize-handle" onmousedown="startResize(event, 'network-interfaces')"></div>
+        </div>
+
+        <div id="router-status" class="glass draggable hidden">
+            <div class="title-bar" onmousedown="startDrag(event, 'router-status')" onclick="bringToFront('router-status')">
+                <span>Router Status</span>
+                <div class="title-buttons">
+                    <span class="title-button" onclick="closePage('router-status')">&times;</span>
+                </div>
+            </div>
+            <div class="content">
+                <p class="text-white opacity-75">Uptime: <span class="text-blue-400">24 hours</span></p>
+                <p class="text-white opacity-75 mt-2">CPU Usage: <span class="text-blue-400">45%</span></p>
+            </div>
+            <div class="resize-handle" onmousedown="startResize(event, 'router-status')"></div>
+        </div>
+    </div>
+
+    <script>
+        function showPage(id) {
+            const page = document.getElementById(id);
+            page.classList.remove('hidden');
+            bringToFront(id);
+        }
+
+        function closePage(id) {
+            const page = document.getElementById(id);
+            page.classList.add('hidden');
+        }
+
+        function bringToFront(id) {
+            const allPages = document.querySelectorAll('.draggable');
+            allPages.forEach(page => page.style.zIndex = 0);
+            const page = document.getElementById(id);
+            page.style.zIndex = 10;
+        }
+
+        function switchTab(tab) {
+            const ipv4 = document.getElementById('ipv4');
+            const dns = document.getElementById('dns');
+            const tabs = document.querySelectorAll('.tab-button');
+
+            if (tab === 'ipv4') {
+                ipv4.classList.remove('hidden');
+                dns.classList.add('hidden');
+                tabs.forEach(t => t.classList.remove('active'));
+                document.querySelector('.tab-button:nth-child(1)').classList.add('active');
+            } else {
+                dns.classList.remove('hidden');
+                ipv4.classList.add('hidden');
+                tabs.forEach(t => t.classList.remove('active'));
+                document.querySelector('.tab-button:nth-child(2)').classList.add('active');
+            }
+        }
+
+        function saveIPConfig() {
+            const ip = document.getElementById('ip-address').value;
+            const subnet = document.getElementById('subnet-mask').value;
+            const gateway = document.getElementById('gateway').value;
+
+            alert(`Settings Saved! \nIP: ${ip} \nSubnet: ${subnet} \nGateway: ${gateway}`);
+        }
+    </script>
+</body>
+</html>
+
