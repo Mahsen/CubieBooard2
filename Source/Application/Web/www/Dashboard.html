@@ -1,14 +1,28 @@
+<!--
+    File : Dashboard.html
+    Programmer : Mohammad Lotfi
+    Used : Dashboard
+    Design Pattern : none
+    Types of memory : none
+    Total Tread : Nothing
+    Site : https://www.mahsen.ir
+    Tel : +989124662703
+    Email : info@mahsen.ir
+    Last Update : 2025/1/26
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
     <title>Network Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script> <!-- Use Tailwind CSS -->
+    <script src="3.4.16.js"></script> <!-- Use your local Tailwind file -->
     <style>
         .glass {
             backdrop-filter: blur(10px);
-            background-color: rgba(0, 0, 0, 0.6);
+            background-color: rgba(0, 0, 0, 0.4);
         }
 
         .hidden {
@@ -17,8 +31,8 @@
 
         .draggable {
             position: absolute;
-            width: 600px;
-            height: 450px;
+            width: 500px;
+            height: 300px;
             top: 100px;
             left: 100px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
@@ -26,16 +40,16 @@
             overflow: hidden;
             resize: both;
             overflow: auto;
-            z-index: 0;
+            z-index: 0; /* Default layer */
         }
 
         .title-bar {
-            height: 50px;
+            height: 40px;
             background: linear-gradient(135deg, #3b82f6, #1e3a8a);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 15px;
+            padding: 0 10px;
             color: white;
             font-weight: bold;
             cursor: grab;
@@ -54,8 +68,8 @@
             cursor: pointer;
             font-size: 16px;
             font-weight: bold;
-            padding: 4px 10px;
-            border-radius: 5px;
+            padding: 2px 5px;
+            border-radius: 4px;
             background-color: rgba(255, 255, 255, 0.2);
         }
 
@@ -66,7 +80,7 @@
         .content {
             padding: 20px;
             overflow: auto;
-            height: calc(100% - 50px);
+            height: calc(100% - 40px);
         }
 
         .resize-handle {
@@ -82,8 +96,8 @@
         .input-field {
             background: rgba(255, 255, 255, 0.2);
             color: white;
-            padding: 12px;
-            border-radius: 8px;
+            padding: 8px;
+            border-radius: 5px;
             width: 100%;
             margin-top: 10px;
         }
@@ -92,55 +106,37 @@
             outline: none;
             background: rgba(255, 255, 255, 0.4);
         }
-
-        .tab-button {
-            padding: 10px 20px;
-            background-color: #3b82f6;
-            color: white;
-            border-radius: 5px;
-            cursor: pointer;
-            border: none;
-            margin-right: 10px;
-        }
-
-        .tab-button:hover {
-            background-color: #2563eb;
-        }
-
-        .tab-button.active {
-            background-color: #1e40af;
-        }
-
-        .form-section {
-            margin-top: 20px;
-        }
-
-        .form-section h3 {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: white;
-        }
     </style>
 </head>
 <body class="bg-gradient-to-r from-gray-800 via-gray-900 to-black h-screen">
 
     <!-- Sidebar Menu -->
     <nav class="glass w-64 h-full fixed flex flex-col p-6">
-        <h2 class="text-2xl font-semibold text-white mb-8">Router Menu</h2>
+        <h2 class="text-2xl font-semibold text-white mb-8">
+            <span class="text-yellow-400">m</span>Router
+            <hr style="border: 1px solid #facc15; margin-top: -10px; width: 50%; text-align: left;" />
+        </h2>
+               
         <ul class="space-y-4">
             <li>
-                <button onclick="showPage('ip-config')" class="block w-full text-left text-white text-lg hover:text-blue-400 transition">IP Configuration</button>
+                <button onclick="showPage('network-interfaces')" class="block w-full text-left text-white text-lg hover:text-blue-400 transition">
+                    <i class="bi bi-ethernet"></i> Network Interfaces
+                </button>
             </li>
             <li>
-                <button onclick="showPage('network-interfaces')" class="block w-full text-left text-white text-lg hover:text-blue-400 transition">Network Interfaces</button>
-            </li>
+                <button onclick="showPage('ip-config')" class="block w-full text-left text-white text-lg hover:text-blue-400 transition">
+                    <i class="bi bi-gear"></i> IP Configuration
+                </button>
+            </li>            
             <li>
-                <button onclick="showPage('router-status')" class="block w-full text-left text-white text-lg hover:text-blue-400 transition">Router Status</button>
+                <button onclick="showPage('router-status')" class="block w-full text-left text-white text-lg hover:text-blue-400 transition">
+                    <i class="bi bi-info-circle"></i> Router Status
+                </button>
             </li>
         </ul>
+        
         <footer class="mt-auto text-white text-sm">
-            <p>Powered by <a href="https://mahsen.ir" class="text-blue-500 hover:underline" target="_blank">mahsen.ir</a></p>
+            <div class="flex items-center justify-center p-4">Powered by <a href="https://mahsen.ir" class="text-blue-500 hover:underline" target="_blank"><img src="logo.png" alt="Logo" class="w-20 h-20 object-contain" /></a></div>
         </footer>
     </nav>
 
@@ -155,35 +151,24 @@
                 </div>
             </div>
             <div class="content">
-                <div class="tabs">
-                    <button class="tab-button active" onclick="switchTab('ipv4')">IPv4 Settings</button>
-                    <button class="tab-button" onclick="switchTab('dns')">DNS Settings</button>
-                </div>
+                <p class="text-white opacity-75">Current IP: <span class="text-blue-400">192.168.1.1</span></p>
+                <p class="text-white opacity-75 mt-2">Subnet: <span class="text-blue-400">255.255.255.0</span></p>
 
-                <!-- IPv4 Settings Tab -->
-                <div id="ipv4" class="form-section">
-                    <h3>IPv4 Configuration</h3>
+                <div class="mt-4">
                     <label for="ip-address" class="text-white">IP Address:</label>
                     <input type="text" id="ip-address" class="input-field" value="192.168.1.1" />
-                    
+
                     <label for="subnet-mask" class="text-white mt-4">Subnet Mask:</label>
                     <input type="text" id="subnet-mask" class="input-field" value="255.255.255.0" />
-                    
+
                     <label for="gateway" class="text-white mt-4">Gateway:</label>
                     <input type="text" id="gateway" class="input-field" value="192.168.1.254" />
+
+                    <label for="dns" class="text-white mt-4">DNS:</label>
+                    <input type="text" id="dns" class="input-field" value="8.8.8.8" />
                 </div>
 
-                <!-- DNS Settings Tab -->
-                <div id="dns" class="form-section hidden">
-                    <h3>DNS Configuration</h3>
-                    <label for="primary-dns" class="text-white">Primary DNS:</label>
-                    <input type="text" id="primary-dns" class="input-field" value="8.8.8.8" />
-
-                    <label for="secondary-dns" class="text-white mt-4">Secondary DNS:</label>
-                    <input type="text" id="secondary-dns" class="input-field" value="8.8.4.4" />
-                </div>
-
-                <button onclick="saveIPConfig()" class="mt-6 py-2 px-6 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Save Changes</button>
+                <button onclick="saveIPConfig()" class="mt-4 py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Save Changes</button>
             </div>
             <div class="resize-handle" onmousedown="startResize(event, 'ip-config')"></div>
         </div>
@@ -196,10 +181,28 @@
                 </div>
             </div>
             <div class="content">
-                <ul class="text-white opacity-75">
-                    <li><span class="font-semibold">eth0</span> - Active</li>
-                    <li><span class="font-semibold">wlan0</span> - Inactive</li>
-                </ul>
+                <table border="1" cellpadding="8" cellspacing="0" style="width: 100%; border-collapse: collapse; text-align: left; color: white; margin-bottom: 16px;">
+                    <thead style="background-color: #333;">
+                        <tr>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>TX</th>
+                            <th>RX</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- << Sample >>
+                        <tr>
+                            <td>eth0</td>
+                            <td>Ethernet</td>
+                            <td>100</td>
+                            <td>50</td>
+                            <td>up</td>
+                        </tr>
+                        -->
+                    </tbody>
+                </table>                
             </div>
             <div class="resize-handle" onmousedown="startResize(event, 'network-interfaces')"></div>
         </div>
@@ -220,50 +223,148 @@
     </div>
 
     <script>
+        var PagesLoaded = new Array();
+
+        function remove(arr, what) {
+            var found = arr.indexOf(what);
+
+            while (found !== -1) {
+                arr.splice(found, 1);
+                found = arr.indexOf(what);
+            }
+        }
+        
+        // Show the selected page
         function showPage(id) {
+            PagesLoaded.push(id);
             const page = document.getElementById(id);
             page.classList.remove('hidden');
             bringToFront(id);
         }
-
+        // Close the selected page
         function closePage(id) {
             const page = document.getElementById(id);
             page.classList.add('hidden');
+            remove(PagesLoaded, id);
         }
 
+        // Bring the selected page to the front
         function bringToFront(id) {
             const allPages = document.querySelectorAll('.draggable');
-            allPages.forEach(page => page.style.zIndex = 0);
+            allPages.forEach(page => page.style.zIndex = 0); // Reset all windows to default layer
             const page = document.getElementById(id);
-            page.style.zIndex = 10;
+            page.style.zIndex = 10; // Bring the selected page to the front
         }
 
-        function switchTab(tab) {
-            const ipv4 = document.getElementById('ipv4');
-            const dns = document.getElementById('dns');
-            const tabs = document.querySelectorAll('.tab-button');
+        // Save the IP Configuration changes
+        function saveIPConfig() {
+            const ipAddress = document.getElementById('ip-address').value;
+            const subnetMask = document.getElementById('subnet-mask').value;
+            const gateway = document.getElementById('gateway').value;
+            const dns = document.getElementById('dns').value;
 
-            if (tab === 'ipv4') {
-                ipv4.classList.remove('hidden');
-                dns.classList.add('hidden');
-                tabs.forEach(t => t.classList.remove('active'));
-                document.querySelector('.tab-button:nth-child(1)').classList.add('active');
-            } else {
-                dns.classList.remove('hidden');
-                ipv4.classList.add('hidden');
-                tabs.forEach(t => t.classList.remove('active'));
-                document.querySelector('.tab-button:nth-child(2)').classList.add('active');
+            console.log("IP Configuration Saved:");
+            console.log("IP Address:", ipAddress);
+            console.log("Subnet Mask:", subnetMask);
+            console.log("Gateway:", gateway);
+            console.log("DNS:", dns);
+
+            alert("IP Configuration Saved!");
+        }
+
+        // Dragging logic
+        let activePage = null;
+        let offsetX = 0;
+        let offsetY = 0;
+
+        function startDrag(event, id) {
+            activePage = document.getElementById(id);
+            offsetX = event.clientX - activePage.offsetLeft;
+            offsetY = event.clientY - activePage.offsetTop;
+            document.onmousemove = dragElement;
+            document.onmouseup = stopDrag;
+        }
+
+        function dragElement(event) {
+            if (activePage) {
+                activePage.style.left = event.clientX - offsetX + 'px';
+                activePage.style.top = event.clientY - offsetY + 'px';
             }
         }
 
-        function saveIPConfig() {
-            const ip = document.getElementById('ip-address').value;
-            const subnet = document.getElementById('subnet-mask').value;
-            const gateway = document.getElementById('gateway').value;
-
-            alert(`Settings Saved! \nIP: ${ip} \nSubnet: ${subnet} \nGateway: ${gateway}`);
+        function stopDrag() {
+            activePage = null;
+            document.onmousemove = null;
+            document.onmouseup = null;
         }
+
+        // Resizing logic
+        let resizingPage = null;
+        let resizeOffsetX = 0;
+        let resizeOffsetY = 0;
+
+        function startResize(event, id) {
+            resizingPage = document.getElementById(id);
+            resizeOffsetX = event.clientX - resizingPage.offsetWidth;
+            resizeOffsetY = event.clientY - resizingPage.offsetHeight;
+            document.onmousemove = resizeElement;
+            document.onmouseup = stopResize;
+        }
+
+        function resizeElement(event) {
+            if (resizingPage) {
+                const newWidth = event.clientX - resizingPage.offsetLeft;
+                const newHeight = event.clientY - resizingPage.offsetTop;
+                resizingPage.style.width = newWidth + 'px';
+                resizingPage.style.height = newHeight + 'px';
+            }
+        }
+
+        function stopResize() {
+            resizingPage = null;
+            document.onmousemove = null;
+            document.onmouseup = null;
+        }
+
+        function UpdateTime() {
+            PagesLoaded.forEach(element => {
+                switch(element) {
+                    case 'network-interfaces': {
+                        const data = {
+                            Task: 'get-network-interfaces'
+                        };
+                        fetch('/cgi-bin/Web', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(data)
+                        })
+                        .then(response => response.json())
+                        .then(json => {
+                            //alert(json.Return.State);
+                            var HTML = "";
+                            json.Return.Data.forEach(d => {
+                                HTML += "<tr>";
+                                HTML += "<td>"+d.Name+"</td>";
+                                HTML += "<td>"+d.Type+"</td>";
+                                HTML += "<td>"+d.TX+"</td>";
+                                HTML += "<td>"+d.RX+"</td>";
+                                HTML += "<td>"+d.Status+"</td>";
+                                HTML += "</tr>";
+                            });
+                            document.getElementById(element).querySelector('tbody').innerHTML = HTML;                            
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                        break;
+                    }
+                }
+;            });
+        }
+
+        setInterval(UpdateTime, 1000);
     </script>
 </body>
 </html>
-
