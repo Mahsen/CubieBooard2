@@ -140,6 +140,7 @@ cJSON* getNetworkInterfaces() {
 }
 /* The main function start of program in cpp language */
 int main() {
+    system("echo 1 > ../../sys/class/leds/cubieboard2:green:usr/brightness");
 
     // Get the content length
     //char buffer[1024];
@@ -159,6 +160,7 @@ int main() {
         if (!json) {
             Print((char*)"{\"error\": \"Invalid JSON\"}\n");
             free(json_payload);
+            system("echo 0 > ../../sys/class/leds/cubieboard2:green:usr/brightness");
             return 1;
         }
 
@@ -176,6 +178,7 @@ int main() {
         Print((char*)"{\"error\": \"No data received\"}\n");
     }
 
+    system("echo 0 > ../../sys/class/leds/cubieboard2:green:usr/brightness");
     return 0;
 }
 /************************************************** Tasks
