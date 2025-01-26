@@ -1,3 +1,16 @@
+#    File : makefile
+#    Programmer : Mohammad Lotfi
+#    Used : make
+#    Design Pattern : none
+#    Types of memory : none
+#    Total Tread : Nothing
+#    Site : https://www.mahsen.ir
+#    Tel : +989124662703
+#    Email : info@mahsen.ir
+#    Last Update : 2025/1/26
+
+# Publish
+PUBLISH_SERVER = "root@192.168.88.9"
 # Export STAGING_DIR 
 STAGING_DIR = ../OpenWRT/staging_dir
 export STAGING_DIR
@@ -35,10 +48,15 @@ all:
 	chmod +x $(TARGET)
 	$(CXX) $(CXXFLAGS) $(SRCS_WEB) -o $(TARGET_WEB) $(LIBRARY_DIR) $(LIBRARY)
 	chmod +x $(TARGET_WEB)
-	cp $(TARGET) ../OpenWRT/files/root
-	cp $(SRCS_WWW) ../OpenWRT/files/www
-	cp $(TARGET_WEB) ../OpenWRT/files/www/cgi-bin/
-	
+
+#   cp $(TARGET) ../OpenWRT/files/root
+#   cp $(SRCS_WWW) ../OpenWRT/files/www
+#   cp $(TARGET_WEB) ../OpenWRT/files/www/cgi-bin/
+
+	./Publish.sh $(PUBLISH_SERVER) "$(SRCS_WWW)" "/www"
+	./Publish.sh $(PUBLISH_SERVER) "$(TARGET_WEB)" "/www/cgi-bin"
+
+
 clean:
 	del $(TARGET)
 	del $(TARGET_WEB)
